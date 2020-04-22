@@ -38,8 +38,8 @@ export async function registerPerformance(router: IRouter, logger: Logger) {
       return runner
         .run(testUrls)
         .then((data: UrlTestResult[]) => {
-          const screenshots: string[] = data.map((pageData: UrlTestResult): string => {
-            return pageData.screenshots.map((ss): string => ss.base64EncodedData).join();
+          const screenshots = data.map((pageData: UrlTestResult) => {
+            return pageData.screenshots.map(ss => ss.base64EncodedData).join();
           });
           const json = {
             test_name: 'multi-urls',

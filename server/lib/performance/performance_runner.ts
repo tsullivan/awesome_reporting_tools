@@ -17,64 +17,38 @@
  * under the License.
  */
 
-import * as Rx from 'rxjs';
 import { Logger } from '../../../../../src/core/server';
-
-interface Headers {
-  headers: { authorization: string };
-}
-
-function getHeaders(server): Headers {
-  const config = server.config();
-  const configAuth = config.get('reporting_tools.pageLoadAuth');
-
-  return {
-    headers: {
-      authorization: `Basic ${Buffer.from(configAuth).toString('base64')}`,
-    },
-  };
-}
-
-export interface UrlTestResult {
-  screenshots: Screenshot[];
-}
-
-type PluginScreenshotObservable = ({
-  logger,
-  urls,
-  conditionalHeaders,
-  layout,
-  browserTimezone,
-}: ScreenshotObservableOpts) => Rx.Observable<UrlTestResult[]>;
+import {
+  PreserveLayout,
+  ReportingCore,
+} from '../../../../../x-pack/legacy/plugins/reporting/server/types';
 
 export class PerformanceRunner {
-  private screenshotsObservable: PluginScreenshotObservable;
-  private headers: Headers;
+  private reportingCore: ReportingCore;
   private logger: Logger;
+  private headers: Headers;
 
-  constructor(server, logger: Logger) {
-    this.headers = getHeaders(server);
+  constructor(reportingCore: ReportingCore, headers: Headers, logger: Logger) {
     this.logger = logger;
-
-    this.screenshotsObservable = (screenshotsObservableFactory(
-      server
-    ) as unknown) as PluginScreenshotObservable;
+    this.reportingCore = reportingCore;
   }
 
-  public async run(urls: string[]): Promise<UrlTestResult[]> {
+  public async run(urls: string[]) {
+    const getScreenshots = await this.reportingCore.getScreenshotsObservable();
+
     this.logger.info('Launching browser...');
 
     return new Promise((resolve, reject): object => {
       const layout = new PreserveLayout({ width: 1200, height: 900 });
 
-      return this.screenshotsObservable({
+      return getScreenshots({
         urls,
-        conditionalHeaders: this.headers as any,
+        conditionalHeaders: this.headers as any, // FIXME - needs .conditions?
         layout,
         browserTimezone: 'UTC',
         logger: this.logger as any,
       }).subscribe(
-        (data: UrlTestResult[]): UrlTestResult[] => {
+        data => {
           resolve(data);
           return data;
         },
