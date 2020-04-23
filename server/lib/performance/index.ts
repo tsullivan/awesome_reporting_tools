@@ -17,11 +17,11 @@
  * under the License.
  */
 
-import { PerformanceRunner } from './performance_runner';
 import { Logger } from '../../../../../src/core/server';
+import { ReportingCore } from '../../../../../x-pack/legacy/plugins/reporting/server';
+import { PerformanceRunner } from './performance_runner';
 
-export function getRunner(logger: Logger): PerformanceRunner {
-  return new PerformanceRunner(logger);
+export function getRunner(reportingCore: ReportingCore, logger: Logger): PerformanceRunner {
+  const fakeHeaders = {};
+  return new PerformanceRunner(reportingCore, fakeHeaders as any, logger);
 }
-
-export { UrlTestResult } from './performance_runner';

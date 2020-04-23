@@ -73,8 +73,8 @@ export class Performance extends React.Component<Props, State> {
     const testUrls = this.state.urls;
     try {
       result = await this.props.http.post({
-        path: '/api/reporting-performance/run',
-        body: JSON.stringify({ 'test_urls': testUrls }) // prettier-ignore
+        path: '/api/awesome_reporting_tools/performance/run',
+        body: JSON.stringify({ 'test_urls': testUrls })
       });
     } catch (err) {
       this.setState(() => ({ isLoading: false, resultText: err, isError: true }));

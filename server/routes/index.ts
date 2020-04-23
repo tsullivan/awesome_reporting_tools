@@ -20,8 +20,9 @@
 import { IRouter, Logger } from '../../../../src/core/server';
 import { registerDangerZone } from './danger_zone';
 import { registerPerformance } from './performance';
+import { ReportingCore } from '../../../../x-pack/legacy/plugins/reporting/server';
 
-export function defineRoutes(router: IRouter, logger: Logger) {
+export function defineRoutes(reportingCore: ReportingCore, router: IRouter, logger: Logger) {
   registerDangerZone(router, logger);
-  registerPerformance(router, logger);
+  registerPerformance(reportingCore, router, logger);
 }

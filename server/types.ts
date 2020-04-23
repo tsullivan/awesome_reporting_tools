@@ -17,9 +17,5 @@
  * under the License.
  */
 
-import { ReportingSetup } from '../../../x-pack/legacy/plugins/reporting/server';
-
-export interface AwesomeReportingToolsPluginSetup {
-  reporting: ReportingSetup;
-}
-export type AwesomeReportingToolsPluginStart = object;
+export type AwesomeReportingToolsPluginSetup = void;
+export type AwesomeReportingToolsPluginStart = void;

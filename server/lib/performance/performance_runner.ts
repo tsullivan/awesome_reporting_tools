@@ -18,6 +18,7 @@
  */
 
 import { Logger } from '../../../../../src/core/server';
+import { ScreenshotResults } from '../../../../../x-pack/legacy/plugins/reporting/export_types/common/lib/screenshots/types';
 import {
   PreserveLayout,
   ReportingCore,
@@ -33,33 +34,17 @@ export class PerformanceRunner {
     this.reportingCore = reportingCore;
   }
 
-  public async run(urls: string[]) {
+  public async run(urls: string[]): Promise<ScreenshotResults[]> {
+    const layout = new PreserveLayout({ width: 1200, height: 900 });
     const getScreenshots = await this.reportingCore.getScreenshotsObservable();
 
     this.logger.info('Launching browser...');
-
-    return new Promise((resolve, reject): object => {
-      const layout = new PreserveLayout({ width: 1200, height: 900 });
-
-      return getScreenshots({
-        urls,
-        conditionalHeaders: this.headers as any, // FIXME - needs .conditions?
-        layout,
-        browserTimezone: 'UTC',
-        logger: this.logger as any,
-      }).subscribe(
-        data => {
-          resolve(data);
-          return data;
-        },
-        (err: Error): void => {
-          this.logger.error(`screenshotting threw an exception: ${err}`);
-          reject(err);
-        },
-        (): void => {
-          this.logger.info('Test complete.');
-        }
-      );
-    });
+    return getScreenshots({
+      urls,
+      conditionalHeaders: this.headers as any, // FIXME - needs .conditions?
+      layout,
+      browserTimezone: 'UTC',
+      logger: this.logger as any,
+    }).toPromise();
   }
 }

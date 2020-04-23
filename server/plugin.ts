@@ -18,38 +18,39 @@
  */
 
 import {
-  PluginInitializerContext,
   CoreSetup,
   CoreStart,
-  Plugin,
   Logger,
+  Plugin,
+  PluginInitializerContext,
 } from '../../../src/core/server';
-
-import { AwesomeReportingToolsPluginSetup, AwesomeReportingToolsPluginStart } from './types';
+import { ReportingSetup } from '../../../x-pack/legacy/plugins/reporting/server/types';
 import { defineRoutes } from './routes';
+import { AwesomeReportingToolsPluginSetup, AwesomeReportingToolsPluginStart } from './types';
+
+interface PluginsSetup {
+  reporting: ReportingSetup;
+}
 
 export class AwesomeReportingToolsPlugin
-  implements Plugin<AwesomeReportingToolsPluginSetup, AwesomeReportingToolsPluginStart> {
+  implements
+    Plugin<AwesomeReportingToolsPluginSetup, AwesomeReportingToolsPluginStart, PluginsSetup> {
   private readonly logger: Logger;
 
   constructor(initializerContext: PluginInitializerContext) {
     this.logger = initializerContext.logger.get('awesome');
   }
 
-  public setup(core: CoreSetup) {
-    this.logger.debug('awesome_reporting_tools: Setup');
+  public setup(core: CoreSetup, plugins: PluginsSetup) {
+    const { reporting } = plugins;
     const router = core.http.createRouter();
+    this.logger.info(`Reporting Plugin sourced from: ${reporting.source}`);
 
     // Register server side APIs
-    defineRoutes(router, this.logger);
-
-    return {};
+    defineRoutes(reporting.reportingCore, router, this.logger);
   }
 
-  public start(core: CoreStart) {
-    this.logger.info('awesome_reporting_tools: Started');
-    return {};
-  }
+  public start(core: CoreStart) {}
 
   public stop() {}
 }

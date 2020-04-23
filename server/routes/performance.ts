@@ -17,15 +17,20 @@
  * under the License.
  */
 
-import { IRouter, Logger, RouteValidatorFullConfig } from '../../../../src/core/server';
-import { getRunner, UrlTestResult } from '../lib/performance';
+import { IRouter, Logger } from '../../../../src/core/server';
+import { ReportingCore } from '../../../../x-pack/legacy/plugins/reporting/server';
+import { getRunner } from '../lib/performance';
 
 interface PostBody {
   test_urls: string[];
 }
 
-export async function registerPerformance(router: IRouter, logger: Logger) {
-  const runner = getRunner(logger);
+export async function registerPerformance(
+  reportingCore: ReportingCore,
+  router: IRouter,
+  logger: Logger
+) {
+  const runner = getRunner(reportingCore, logger);
 
   router.post<void, void, PostBody>(
     {
@@ -37,8 +42,8 @@ export async function registerPerformance(router: IRouter, logger: Logger) {
       const startTime = Date.now();
       return runner
         .run(testUrls)
-        .then((data: UrlTestResult[]) => {
-          const screenshots = data.map((pageData: UrlTestResult) => {
+        .then(data => {
+          const screenshots = data.map(pageData => {
             return pageData.screenshots.map(ss => ss.base64EncodedData).join();
           });
           const json = {
@@ -56,8 +61,6 @@ export async function registerPerformance(router: IRouter, logger: Logger) {
           logger.error(err);
           return response.internalError(err);
         });
-
-      // return response.ok({ body: { string: 'testing' } });
     }
   );
 }
