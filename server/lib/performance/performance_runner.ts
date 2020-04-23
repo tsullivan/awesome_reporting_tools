@@ -21,7 +21,7 @@ import { Logger } from '../../../../../src/core/server';
 import {
   PreserveLayout,
   ReportingCore,
-} from '../../../../../x-pack/legacy/plugins/reporting/server/types';
+} from '../../../../../x-pack/legacy/plugins/reporting/server';
 
 export class PerformanceRunner {
   private reportingCore: ReportingCore;
